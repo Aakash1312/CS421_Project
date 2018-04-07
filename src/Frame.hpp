@@ -25,6 +25,7 @@ class Frame
     /** Set the color at a sample point. */
     void setColor(Sample const & s, RGB c);
     void save(std::string const & path);
+    Image* getImage(){ return &image; }
 
   private:
     Image image;

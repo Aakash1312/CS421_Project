@@ -6,8 +6,7 @@
 #include "Lights.hpp"
 #include "core/Scene.hpp"
 #include <algorithm>
-// #include "mpi.h"
-// #include "omp.h"
+#include "mpi.h"
 using namespace std;
 //****************************************************
 // Global Variables
@@ -23,6 +22,12 @@ int max_trace_depth = 2;
 // Get the shaded appearance of the primitive at a given position, as seen along a ray. The returned value should be the sum of
 // the shaded colors w.r.t. each light in the scene. DO NOT include the result of recursive raytracing in this function, just
 // use the ambient-diffuse-specular formula. DO include testing for shadows, individually for each light.
+// struct data
+// {
+//   int xi;
+//   int yi;
+//   double r,g,b;
+// };
 RGB
 getShadedColor(Primitive const & primitive, Vec3 const & pos, Ray const & ray)
 {
@@ -285,7 +290,7 @@ reverseTraceRay(Ray & ray, int depth, int presentMaterial, int of, Vec3 &positio
 }
 // Main rendering loop.
 void
-renderWithRaytracing(int focus)
+renderWithRaytracing(int focus, int p, int rank)
 {
   Sample sample;   // Point on the view being sampled.
   Ray ray;         // Ray being traced from the eye through the point.
@@ -299,55 +304,114 @@ renderWithRaytracing(int focus)
   // double rp = sqrt((r*r) - ((r - w/2)*(r - w/2)));
   double rp = 2.0;
   double d = 11.2;
-// #pragma omp parallel for
+  int chunkx = (view->width() + p - 1) / p;
+  int rem = view->width() - chunkx*(p-1);
+  int  tchunkx = chunkx;
+  if (rank == p-1)
+  {
+    chunkx = rem;
+  }
+  int xarray[chunkx*(view->height())*2];
+  double color[chunkx*(view->height())*3];
   for (int yi = 0; yi < view->height(); ++yi)
   {
-    std::cout << yi << std::endl;
-    for (int xi =0; xi < view->width(); ++xi)
+    for (int xi = rank*tchunkx; xi < (rank+1) * tchunkx && xi < view->width(); ++xi)
     {
       c = RGB(0, 0, 0);
       if (focus)
       {
-        view->getSample(xi, yi, 0, sample);
-        int count = 0;
-        for (double xp = -1*rp; xp < rp; xp = xp + 0.1)
-        {
-          for (double yp = -1*sqrt(rp*rp - (xp*xp)); yp < sqrt(rp*rp - (xp*xp)); yp = yp + 0.1)
-          {
-            // double yp = -1*sqrt(rp*rp - (xp*xp))+0.1;
-            ray = view -> createViewingRay2(sample, xp, yp, d);
-            ray.transform(viewToWorld);            // transform this to world space
-            c += traceRay(ray, 0, 0, 0);
-            count++;
-            // yp = sqrt(rp*rp - (xp*xp)) - 0.1;
-            // ray = view -> createViewingRay2(sample, xp, yp, d);
-            // ray.transform(viewToWorld);            // transform this to world space
-            // c += traceRay(ray, 0, 0, 0);
-            // count++;
-          }
-        // ray = view->createViewingRay(sample);  // convert the 2d sample position to a 3d ray
-        // ray.transform(viewToWorld);            // transform this to world space
-        // c += traceRay(ray, 0, 0, 0);
+      //   view->getSample(xi, yi, 0, sample);
+      //   int count = 0;
+      //   for (double xp = -1*rp; xp < rp; xp = xp + 0.1)
+      //   {
+      //     for (double yp = -1*sqrt(rp*rp - (xp*xp)); yp < sqrt(rp*rp - (xp*xp)); yp = yp + 0.1)
+      //     {
+      //       // double yp = -1*sqrt(rp*rp - (xp*xp))+0.1;
+      //       ray = view -> createViewingRay2(sample, xp, yp, d);
+      //       ray.transform(viewToWorld);            // transform this to world space
+      //       c += traceRay(ray, 0, 0, 0);
+      //       count++;
+      //       // yp = sqrt(rp*rp - (xp*xp)) - 0.1;
+      //       // ray = view -> createViewingRay2(sample, xp, yp, d);
+      //       // ray.transform(viewToWorld);            // transform this to world space
+      //       // c += traceRay(ray, 0, 0, 0);
+      //       // count++;
+      //     }
+      //   // ray = view->createViewingRay(sample);  // convert the 2d sample position to a 3d ray
+      //   // ray.transform(viewToWorld);            // transform this to world space
+      //   // c += traceRay(ray, 0, 0, 0);
+      // }
+      //     frame->setColor(sample, c / (double)count);
       }
-          frame->setColor(sample, c / (double)count);
-    }
-    else{
-      // std::cout << xi << " " << yi << std::endl;
-        // c = RGB(0, 0, 0);
-
-      for (int ri = 0; ri < rpp; ++ri)
+      else
       {
+        // std::cout << xi << " " << yi << std::endl;
+          // c = RGB(0, 0, 0);
 
-        view->getSample(xi, yi, ri, sample);
-        ray = view->createViewingRay(sample);  // convert the 2d sample position to a 3d ray
-        ray.transform(viewToWorld);            // transform this to world space
-        c += traceRay(ray, 0, 0, 0);
-      }
+        for (int ri = 0; ri < rpp; ++ri)
+        {
+
+          view->getSample(xi, yi, ri, sample);
+          ray = view->createViewingRay(sample);  // convert the 2d sample position to a 3d ray
+          ray.transform(viewToWorld);            // transform this to world space
+          c += traceRay(ray, 0, 0, 0);
+
+
+        }
+        // result = c;
+        int xs = (int)std::floor(sample.x() * view->width());
+        int ys = (int)std::floor((1 - sample.y()) * view->height());
+        xarray[(yi*chunkx + xi-rank*tchunkx)*2] = xs;
+        xarray[(yi*chunkx + xi-rank*tchunkx)*2+1] = ys;
+        color[(yi*chunkx + xi-rank*tchunkx)*3] = c[0] / (double)rpp;
+        color[(yi*chunkx + xi-rank*tchunkx)*3 + 1] = c[1] / (double)rpp;
+        color[(yi*chunkx + xi-rank*tchunkx)*3 + 2] = c[2] / (double)rpp;
+        if (rank == 0)
+        {
           frame->setColor(sample, c / (double)rpp);
-
+        }
+      }
     }
   }
-}
+  if (rank != 0)
+  {
+    std::cout << "1" << std::endl;
+    MPI_Send(&xarray, chunkx*(view->height())*2, MPI_INT, 0, 0, MPI_COMM_WORLD);
+    MPI_Send(&color, chunkx*(view->height())*3, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
+
+  }
+  else
+  {
+    Image* image = frame->getImage();
+    for (int i = 1; i < p-1; ++i)
+    {
+      MPI_Recv(&xarray, chunkx*(view->height())*2, MPI_INT, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+      MPI_Recv(&color, chunkx*(view->height())*3, MPI_DOUBLE, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+      for (int j = 0; j < chunkx*(view->height()); ++j)
+      {
+        unsigned char * pixel = image->pixel(xarray[j*2+1], xarray[j*2]);
+        RGB tc(color[j*3], color[j*3+1], color[j*3+2]);
+        tc.clip(0,1);
+        pixel[0] = tc.getBMPR(0, 1);
+        pixel[1] = tc.getBMPG(0, 1);
+        pixel[2] = tc.getBMPB(0, 1);
+      } 
+    }
+    if (p != 1)
+    {
+      MPI_Recv(&xarray, rem*(view->height())*2, MPI_INT, p-1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+      MPI_Recv(&color, rem*(view->height())*3, MPI_DOUBLE, p-1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        for (int j = 0; j < rem*view->height(); ++j)
+        {
+          unsigned char * pixel = image->pixel(xarray[j*2+1], xarray[j*2]);
+          RGB tc(color[j*3], color[j*3+1], color[j*3+2]);
+          tc.clip(0,1);
+          pixel[0] = tc.getBMPR(0, 1);
+          pixel[1] = tc.getBMPG(0, 1);
+          pixel[2] = tc.getBMPB(0, 1);
+        } 
+    }
+  }
 }
 
 // This traverses the loaded scene file and builds a list of primitives, lights and the view object. See World.hpp.
@@ -475,9 +539,19 @@ main(int argc, char ** argv)
     std::cout << "Usage: " << argv[0] << " scene.scd output.png [max_trace_depth]" << std::endl;
     return -1;
   }
-
   if (argc >= 5)
     max_trace_depth = atoi(argv[4]);
+
+  double t1, t2; 
+  MPI_Init(NULL, NULL);  // nothing to pick up from the command line
+
+  /* Total number of processes in this MPI communicator */
+  int comm_sz;
+  MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);
+
+  /* Get the rank of this process */
+  int my_rank;
+  MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
 
   int focus = atoi(argv[3]);
 
@@ -495,10 +569,15 @@ main(int argc, char ** argv)
   frame = new Frame(IMAGE_WIDTH, IMAGE_HEIGHT);
 
   // Render the world
-  renderWithRaytracing(focus);
-
+  t1 = MPI_Wtime(); 
+  renderWithRaytracing(focus, comm_sz, my_rank);
+  t2 = MPI_Wtime();
   // Save the output to an image file
-  frame->save(argv[2]);
-  std::cout << "Image saved!" << std::endl;
-
+  if (my_rank == 0)
+  {
+      frame->save(argv[2]);
+      std::cout << "Image saved!" << std::endl;
+      printf( "Elapsed time is %f\n", t2 - t1 ); 
+  }
+  MPI_Finalize();
 }

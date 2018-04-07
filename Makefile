@@ -5,7 +5,7 @@
 # 'make clean'  removes all .o and executable files
 #
 
-CC := c++
+CC := mpicxx
 CFLAGS := -Wall -g2 -O2 -std=c++11 -fno-strict-aliasing
 INCLUDES :=
 LFLAGS :=
