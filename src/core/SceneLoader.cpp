@@ -530,6 +530,105 @@ SceneInstance * SceneLoader::doI(istream & str, string & name)
   while (true);
 }
 
+SceneInstance * SceneLoader::doTriangle(istream & str, string & name)
+{
+  name = getString(str);
+  std::cout << name << std::endl;
+  if (name.empty())
+  {
+    *err << "Couldn't read instance name at ";
+    errLine(str.tellg());
+    return NULL;
+  }
+
+  SceneInstance * n = new SceneInstance();
+  string var = getString(str);
+  ParametricMaterial* triMat;
+  vector<ParametricValue *> values;
+
+  do
+  {
+    int state = findOpenOrClosedParen(str);
+
+    if (state == ERROR)
+      return NULL;
+    else if (state == CLOSED)
+      return n;
+    else if (state == OPEN)
+    {
+      string cmd;
+
+      if (readCommand(str, cmd))
+      {
+        if (cmd == "material") // load rotations
+        {
+          string matName = getString(str);
+
+          if (matName.empty())
+          {
+            *err << "No material name after material command at ";
+            errLine(str.tellg());
+          }
+          else if (materials[matName] == NULL)
+          {
+            *err << "Unknown material " << matName << " referenced at ";
+            errLine(str.tellg());
+          }
+          else
+          {
+            triMat = materials[matName];
+          }
+        }
+        else if (cmd == "V")
+        {
+          int numv = getValues(str, values);
+          Translate * t = NULL;
+
+          if (numv != 9)
+          {
+            *err << "V with too few parameters at ";
+            errLine(str.tellg());
+          }
+          else
+          {
+            cleanAfter(values, 9);
+            t = new Translate();
+
+            for (int i = 0; i < 3; i++)
+            {
+              ParametricValue* tv = new ConstValue((values[i*3]->getValue() + values[i*3+1]->getValue() + values[i*3+2]->getValue())/3.0);
+              t->translate[i] = tv;
+            }
+          }
+
+          if (t != NULL)
+            n->transforms_.push_back(t);
+        }
+        else
+        {
+          *err << "Error: command " << cmd << " not recognized at ";
+          curPos(*err, str.tellg());
+          *err << endl;
+        }
+
+        findCloseParen(str);
+      }
+    }
+  }
+  while (true);
+
+  std::cout << var << std::endl;
+  SceneGroup * nt = new SceneGroup();
+  groups[var] = nt;
+  nt->name_ = var;
+  nt->triangle_ = new ParametricTriangle(Vec3(values[0]->getValue(), values[1]->getValue(), values[2]->getValue()), Vec3(values[3]->getValue(), values[4]->getValue(), values[5]->getValue()), Vec3(values[6]->getValue(), values[7]->getValue(), values[8]->getValue()), triMat);
+
+  instances.push_back(n); //nodes[name] = n;
+  n->name_ = name;
+  n->child_ = groups[var];
+
+}
+
 bool SceneLoader::getName(istream & str, string type, string & name)
 {
   name = getString(str);
@@ -1337,19 +1436,32 @@ bool SceneLoader::doG(istream & str, string & name)
 
       if (readCommand(str, cmd))
       {
-        if (cmd != "I")
+        if (cmd != "I" && cmd != "TRI")
         {
-          *err << "Command other than I from G at ";
+          *err << "Command other than I or TRI from G at ";
           curPos(*err, str.tellg());
           *err << endl;
         }
 
-        string iname;
-        SceneInstance * newNode;
-
-        if ((newNode = doI(str, iname)) != NULL)
+        if (cmd == "I")
         {
-          n->children_.push_back( newNode );
+          string iname;
+          SceneInstance * newNode;
+
+          if ((newNode = doI(str, iname)) != NULL)
+          {
+            n->children_.push_back( newNode );
+          }
+        }
+        else
+        {
+          string iname;
+          SceneInstance * newNode;
+
+          if ((newNode = doTriangle(str, iname)) != NULL)
+          {
+            n->children_.push_back( newNode );
+          }          
         }
 
         findCloseParen(str);

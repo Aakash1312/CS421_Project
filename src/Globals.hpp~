@@ -22,7 +22,7 @@
 #include "core/Algebra3.hpp"
 #include "core/Types.hpp"
 
-static int const IMAGE_WIDTH = 256;
-static int const IMAGE_HEIGHT = 256;
+static int const IMAGE_WIDTH = 100;
+static int const IMAGE_HEIGHT = 100;
 static int const RAYS_PER_PIXEL_EDGE = 5;
 #endif  // __Globals_hpp__

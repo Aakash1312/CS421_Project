@@ -6,6 +6,8 @@
 #include "Lights.hpp"
 #include "core/Scene.hpp"
 #include <algorithm>
+// #include "mpi.h"
+// #include "omp.h"
 using namespace std;
 //****************************************************
 // Global Variables
@@ -297,8 +299,10 @@ renderWithRaytracing(int focus)
   // double rp = sqrt((r*r) - ((r - w/2)*(r - w/2)));
   double rp = 2.0;
   double d = 11.2;
+// #pragma omp parallel for
   for (int yi = 0; yi < view->height(); ++yi)
   {
+    std::cout << yi << std::endl;
     for (int xi =0; xi < view->width(); ++xi)
     {
       c = RGB(0, 0, 0);
@@ -496,4 +500,5 @@ main(int argc, char ** argv)
   // Save the output to an image file
   frame->save(argv[2]);
   std::cout << "Image saved!" << std::endl;
+
 }

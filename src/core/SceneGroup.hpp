@@ -47,6 +47,7 @@ class SceneGroup
     ParametricCylinder * cylinder_;
     ParametricLight * light_;
     ParametricCamera * camera_;
+    ParametricTriangle * triangle_;
     TriangleMesh * mesh_;
     ParametricMaterial * meshMaterial_;
 

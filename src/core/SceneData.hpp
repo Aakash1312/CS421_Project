@@ -305,6 +305,28 @@ class ParametricSphere
     }
 };
 
+class ParametricTriangle
+{
+  private:
+    ParametricMaterial * material_;
+    Vec3 v0;
+    Vec3 v1;
+    Vec3 v2;
+    friend class SceneLoader;
+
+  public:
+  MaterialInfo getMaterial(int time)
+    {
+      return material_->getMaterial(time);
+    }
+
+    ParametricTriangle(Vec3 a, Vec3 b, Vec3 c, ParametricMaterial * material) : material_(NULL) {v0 = a; v1 = b; v2 = c; material_ = material;}
+
+    ~ParametricTriangle()
+    {
+    }
+};
+
 class ParametricLens
 {
   private:

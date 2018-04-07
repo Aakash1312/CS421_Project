@@ -75,7 +75,7 @@ class SceneLoader
     bool doCylinder(std::istream & str, std::string & name); // process a Sphere command
     bool doLens(std::istream & str, std::string & name); // process a Sphere command
     bool doMaterial(std::istream & str, std::string & name); // process a Material command
-
+    SceneInstance * doTriangle(istream & str, string & name);
     /* the main loading function */
     bool buildScene(std::string filename);
 };

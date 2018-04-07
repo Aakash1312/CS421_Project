@@ -473,38 +473,132 @@ Triangle::Triangle(Vec3 const & v0, Vec3 const & v1, Vec3 const & v2, RGB const 
   verts[2] = v2;
 }
 
+// bool
+// Triangle::intersect(Ray & ray, bool& inside) const
+// {
+//   inside = false;
+//   const double eps = 0.0000001; 
+//   Vec3 v0 = Vec3(modelToWorld_ * Vec4(verts[0], 1.0));
+//   Vec3 v1 = Vec3(modelToWorld_ * Vec4(verts[1], 1.0));
+//   Vec3 v2 = Vec3(modelToWorld_ * Vec4(verts[2], 1.0));
+
+
+//   Vec3 edge1 = v1 - v0;
+//   Vec3 edge2 = v2 - v0;
+//   Vec3 rayVector = ray.direction();
+//   rayVector = rayVector.normalize();
+//   Vec3 h = rayVector^edge2;
+//   Vec3 rayOrigin = ray.start();
+//   double a = edge1*h;
+//   double f,u,v;
+//   if (a > -1.0*eps && a < eps)
+//   {
+//     // std::cout << "1h" << std::endl; 
+//     return false;
+//   }
+//   f = 1.0/a;
+//   Vec3 s = rayOrigin - v0;
+//   u = f * (s*(h));
+//   // std::cout << u << std::endl;
+//   if (u < 0.0 || u > 1.0)
+//   {
+//     // std::cout << "2h" << std::endl; 
+//     return false;
+//   }
+//   Vec3 q = s^(edge1);
+//   v = f * rayVector*(q);
+//   // std::cout << u << " " << u+v << std::endl;
+//   if (v < 0.0 || u + v > 1.0)
+//   {
+//     // std::cout << "3h" << std::endl; 
+//     return false;
+//   }
+//   // At this stage we can compute t to find out where the intersection point is on the line.
+//   double t = f * (edge2*(q));
+//   // std::cout << "t " << t << std::endl;
+//   if (t > eps) // ray intersection
+//   {
+//       // outIntersectionPoint = rayOrigin + rayVector * t; 
+//       std::cout << "4h" << std::endl; 
+//       return true;
+//   }
+//   else // This means that there is a line intersection but not a ray intersection.
+//   {
+//     std::cout << "5h" << std::endl; 
+//     return false;
+//   }
+
+//   // IMPLEMENT_ME(__FILE__, __LINE__);
+// }
+
 bool
 Triangle::intersect(Ray & ray, bool& inside) const
 {
-  // TODO for 3b, NOT 3a
-  // Vec3 v0 = Vec3(modelToWorld_ * Vec4(verts[0], 1.0));
-  // Vec3 v1 = Vec3(modelToWorld_ * Vec4(verts[1], 1.0));
-  // Vec3 v2 = Vec3(modelToWorld_ * Vec4(verts[2], 1.0));
+  inside = false;
+  const double eps = 0.0000001; 
+  Vec3 v0 = Vec3(modelToWorld_ * Vec4(verts[0], 1.0));
+  Vec3 v1 = Vec3(modelToWorld_ * Vec4(verts[1], 1.0));
+  Vec3 v2 = Vec3(modelToWorld_ * Vec4(verts[2], 1.0));
 
-  // Vec3 n = (v1-v0)^(v2-v0);
-  // Vec3 p = ray.start();
-  // double r = (n*(v0 - p))/(n*(ray.direction()));
-  // Vec3 p1 = p + r*(ray.direction());
-  // Vec3 w = p1 - v0;
-  // Vec3 u = v1 - v0;
-  // Vec3 v = v2 - v0;
-  // double s1 = ((u*v)*(w*v) - (v*v)*(w*u))/(((u*v)*(u*v)) - ((u*u)*(v*v)));
-  // double t1 = ((u*v)*(w*u) - (u*u)*(w*v))/(((u*v)*(u*v)) - ((u*u)*(v*v)));
-  // if (s1 >= 0 && t1 >=0 && ((s1 + t1) <= 1) && r > 0)
-  // {
-  //   ray.setMinT(r);
-  //   return true;
-  // }
-  // else
-  // {
-  //   return false;
-  // }
-  IMPLEMENT_ME(__FILE__, __LINE__);
+
+  Vec3 edge1 = v1 - v0;
+  Vec3 edge2 = v2 - v0;
+  Vec3 rayVector = ray.direction();
+  rayVector = rayVector.normalize();
+  Vec3 h = rayVector^edge2;
+  Vec3 rayOrigin = ray.start();
+  double a = edge1*h;
+  double f,u,v;
+  if (a > -1.0*eps && a < eps)
+  {
+    // std::cout << "1h" << std::endl; 
+    return false;
+  }
+  f = 1.0/a;
+  Vec3 s = rayOrigin - v0;
+  u = f * (s*(h));
+  u *= -1;
+  // std::cout << u << std::endl;
+  if (u < 0.0 || u > 1.0)
+  {
+    // std::cout << "2h" << std::endl; 
+    return false;
+  }
+  Vec3 q = s^(edge1);
+  v = f * rayVector*(q);
+  // v *= -1;
+  // std::cout << u << " " << u+v << std::endl;
+  if (v < 0.0 || u + v > 1.0)
+  {
+    // std::cout << "3h" << std::endl; 
+    return false;
+  }
+  // At this stage we can compute t to find out where the intersection point is on the line.
+  double t = f * (edge2*(q));
+  // std::cout << "t " << t << std::endl;
+  if (t > eps) // ray intersection
+  {
+      // outIntersectionPoint = rayOrigin + rayVector * t; 
+      // std::cout << "4h" << std::endl; 
+      ray.setMinT(t);
+      return true;
+  }
+  else // This means that there is a line intersection but not a ray intersection.
+  {
+    // std::cout << "5h" << std::endl; 
+    return false;
+  }
+
+  // IMPLEMENT_ME(__FILE__, __LINE__);
 }
-
 Vec3
 Triangle::calculateNormal(Vec3 const & position) const
 {
   // TODO for 3b, NOT 3a
-  IMPLEMENT_ME(__FILE__, __LINE__);
+  // std::cout << "normal" << std::endl;
+  Vec3 v0 = Vec3(modelToWorld_ * Vec4(verts[0], 1.0));
+  Vec3 v1 = Vec3(modelToWorld_ * Vec4(verts[1], 1.0));
+  Vec3 v2 = Vec3(modelToWorld_ * Vec4(verts[2], 1.0));
+  return ((v1-v0)^(v2-v0)).normalize();
+  // IMPLEMENT_ME(__FILE__, __LINE__);
 }
