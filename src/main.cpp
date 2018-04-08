@@ -304,19 +304,41 @@ renderWithRaytracing(int focus, int p, int rank)
   // double rp = sqrt((r*r) - ((r - w/2)*(r - w/2)));
   double rp = 2.0;
   double d = 11.2;
-  int chunkx = (view->width() + p - 1) / p;
-  int rem = view->width() - chunkx*(p-1);
-  int  tchunkx = chunkx;
-  if (rank == p-1)
+  // int chunkx = (view->width() + p - 1) / p;
+
+  int chunkx = (view->width()) / p;
+  int rem = view->width() - chunkx*p;
+  int offset = rem*(chunkx+1);
+  // std::cout << chunkx << " " << rem << std::endl;return;
+  // if (rank == p-1)
+  // {
+  //   chunkx = rem;
+  // }
+  if (rank < rem)
   {
-    chunkx = rem;
+    chunkx = chunkx+1;
   }
-  int xarray[chunkx*(view->height())*2];
-  double color[chunkx*(view->height())*3];
+  int  tchunkx = chunkx;
+
+  if (rank == rem)
+  {
+    tchunkx = chunkx+1;
+  }
+
+  int* xarray = new int[chunkx*(view->height())*2];
+  double* color = new double[chunkx*(view->height())*3];
   for (int yi = 0; yi < view->height(); ++yi)
   {
-    for (int xi = rank*tchunkx; xi < (rank+1) * tchunkx && xi < view->width(); ++xi)
+    int start= rank*tchunkx;
+    int end = rank*tchunkx + chunkx;
+    if (rank > rem)
     {
+      start = offset + (rank-rem)*chunkx;
+      end =  offset + (rank-rem)*chunkx + chunkx;
+    }
+    for (int xi = start; xi < end && xi < view->width(); ++xi)
+    {
+      // std::cout << "HERE1" << std::endl;
       c = RGB(0, 0, 0);
       if (focus)
       {
@@ -361,11 +383,22 @@ renderWithRaytracing(int focus, int p, int rank)
         // result = c;
         int xs = (int)std::floor(sample.x() * view->width());
         int ys = (int)std::floor((1 - sample.y()) * view->height());
-        xarray[(yi*chunkx + xi-rank*tchunkx)*2] = xs;
-        xarray[(yi*chunkx + xi-rank*tchunkx)*2+1] = ys;
-        color[(yi*chunkx + xi-rank*tchunkx)*3] = c[0] / (double)rpp;
-        color[(yi*chunkx + xi-rank*tchunkx)*3 + 1] = c[1] / (double)rpp;
-        color[(yi*chunkx + xi-rank*tchunkx)*3 + 2] = c[2] / (double)rpp;
+        ////////////////////////////////////////////////////////
+        // xarray[(yi*chunkx + xi-rank*tchunkx)*2] = xs;
+        // xarray[(yi*chunkx + xi-rank*tchunkx)*2+1] = ys;
+        // color[(yi*chunkx + xi-rank*tchunkx)*3] = c[0] / (double)rpp;
+        // color[(yi*chunkx + xi-rank*tchunkx)*3 + 1] = c[1] / (double)rpp;
+        // color[(yi*chunkx + xi-rank*tchunkx)*3 + 2] = c[2] / (double)rpp;
+        ///////////////////////////////////////////////////
+      // std::cout << "HERE2" << std::endl;
+
+        xarray[(yi*chunkx + xi-start)*2] = xs;
+        xarray[(yi*chunkx + xi-start)*2+1] = ys;
+        color[(yi*chunkx + xi-start)*3] = c[0] / (double)rpp;
+        color[(yi*chunkx + xi-start)*3 + 1] = c[1] / (double)rpp;
+        color[(yi*chunkx + xi-start)*3 + 2] = c[2] / (double)rpp;
+      // std::cout << "HERE3" << std::endl;
+
         if (rank == 0)
         {
           frame->setColor(sample, c / (double)rpp);
@@ -373,20 +406,55 @@ renderWithRaytracing(int focus, int p, int rank)
       }
     }
   }
+
   if (rank != 0)
   {
-    std::cout << "1" << std::endl;
-    MPI_Send(&xarray, chunkx*(view->height())*2, MPI_INT, 0, 0, MPI_COMM_WORLD);
-    MPI_Send(&color, chunkx*(view->height())*3, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
+      // std::cout << "seg " << std::endl;
+    MPI_Send(xarray, chunkx*(view->height())*2, MPI_INT, 0, 0, MPI_COMM_WORLD);
+    MPI_Send(color, chunkx*(view->height())*3, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
+          // std::cout << "fault " << std::endl;
 
   }
   else
   {
     Image* image = frame->getImage();
-    for (int i = 1; i < p-1; ++i)
+    //////////////////////////////////////////
+    // for (int i = 1; i < p-1; ++i)
+    // {
+    //   MPI_Recv(&xarray, chunkx*(view->height())*2, MPI_INT, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    //   MPI_Recv(&color, chunkx*(view->height())*3, MPI_DOUBLE, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    //   for (int j = 0; j < chunkx*(view->height()); ++j)
+    //   {
+    //     unsigned char * pixel = image->pixel(xarray[j*2+1], xarray[j*2]);
+    //     RGB tc(color[j*3], color[j*3+1], color[j*3+2]);
+    //     tc.clip(0,1);
+    //     pixel[0] = tc.getBMPR(0, 1);
+    //     pixel[1] = tc.getBMPG(0, 1);
+    //     pixel[2] = tc.getBMPB(0, 1);
+    //   } 
+    // }
+    // if (p != 1)
+    // {
+    //   MPI_Recv(&xarray, rem*(view->height())*2, MPI_INT, p-1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    //   MPI_Recv(&color, rem*(view->height())*3, MPI_DOUBLE, p-1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    //     for (int j = 0; j < rem*view->height(); ++j)
+    //     {
+    //       unsigned char * pixel = image->pixel(xarray[j*2+1], xarray[j*2]);
+    //       RGB tc(color[j*3], color[j*3+1], color[j*3+2]);
+    //       tc.clip(0,1);
+    //       pixel[0] = tc.getBMPR(0, 1);
+    //       pixel[1] = tc.getBMPG(0, 1);
+    //       pixel[2] = tc.getBMPB(0, 1);
+    //     } 
+    // }
+    ///////////////////////////////////
+
+
+    for (int i = 1; i < rem; ++i)
     {
-      MPI_Recv(&xarray, chunkx*(view->height())*2, MPI_INT, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-      MPI_Recv(&color, chunkx*(view->height())*3, MPI_DOUBLE, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+      // std::cout << "SDFSF " << i << std::endl;
+      MPI_Recv(xarray, chunkx*(view->height())*2, MPI_INT, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+      MPI_Recv(color, chunkx*(view->height())*3, MPI_DOUBLE, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
       for (int j = 0; j < chunkx*(view->height()); ++j)
       {
         unsigned char * pixel = image->pixel(xarray[j*2+1], xarray[j*2]);
@@ -397,11 +465,35 @@ renderWithRaytracing(int focus, int p, int rank)
         pixel[2] = tc.getBMPB(0, 1);
       } 
     }
-    if (p != 1)
+
+    if (rem != 0)
     {
-      MPI_Recv(&xarray, rem*(view->height())*2, MPI_INT, p-1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-      MPI_Recv(&color, rem*(view->height())*3, MPI_DOUBLE, p-1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        for (int j = 0; j < rem*view->height(); ++j)
+      chunkx--;
+      for (int i = rem; i < p; ++i)
+      {
+
+        MPI_Recv(xarray, chunkx*(view->height())*2, MPI_INT, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Recv(color, chunkx*(view->height())*3, MPI_DOUBLE, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+              // std::cout << "jdfklsjf " << i << std::endl;
+          for (int j = 0; j < chunkx*view->height(); ++j)
+          {
+            unsigned char * pixel = image->pixel(xarray[j*2+1], xarray[j*2]);
+            RGB tc(color[j*3], color[j*3+1], color[j*3+2]);
+            tc.clip(0,1);
+            pixel[0] = tc.getBMPR(0, 1);
+            pixel[1] = tc.getBMPG(0, 1);
+            pixel[2] = tc.getBMPB(0, 1);
+          } 
+      }
+  }
+  else
+  {
+    for (int i = rem+1; i < p; ++i)
+    {
+      MPI_Recv(xarray, chunkx*(view->height())*2, MPI_INT, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+      MPI_Recv(color, chunkx*(view->height())*3, MPI_DOUBLE, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+      // std::cout << "HERE4" << std::endl;
+        for (int j = 0; j < chunkx*view->height(); ++j)
         {
           unsigned char * pixel = image->pixel(xarray[j*2+1], xarray[j*2]);
           RGB tc(color[j*3], color[j*3+1], color[j*3+2]);
@@ -410,8 +502,13 @@ renderWithRaytracing(int focus, int p, int rank)
           pixel[1] = tc.getBMPG(0, 1);
           pixel[2] = tc.getBMPB(0, 1);
         } 
+              // std::cout << "HERE5" << std::endl;
+
     }
+
   }
+  }
+
 }
 
 // This traverses the loaded scene file and builds a list of primitives, lights and the view object. See World.hpp.
@@ -555,7 +652,7 @@ main(int argc, char ** argv)
 
   int focus = atoi(argv[3]);
 
-  cout << "Max trace depth = " << max_trace_depth << endl;
+  // cout << "Max trace depth = " << max_trace_depth << endl;
 
   // Load the scene from the disk file
   scene = new Scene(argv[1]);
@@ -569,8 +666,10 @@ main(int argc, char ** argv)
   frame = new Frame(IMAGE_WIDTH, IMAGE_HEIGHT);
 
   // Render the world
-  t1 = MPI_Wtime(); 
+  t1 = MPI_Wtime();
+  // std::cout << "seg" << std::endl;
   renderWithRaytracing(focus, comm_sz, my_rank);
+  // std::cout << "fault" << std::endl;
   t2 = MPI_Wtime();
   // Save the output to an image file
   if (my_rank == 0)
@@ -579,5 +678,7 @@ main(int argc, char ** argv)
       std::cout << "Image saved!" << std::endl;
       printf( "Elapsed time is %f\n", t2 - t1 ); 
   }
+  // std::cout << my_rank << std::endl;
   MPI_Finalize();
+  return 0;
 }

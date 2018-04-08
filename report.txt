@@ -1,0 +1,378 @@
+256x256
+
+14.278542
+7.267324
+4.980175
+3.844731
+3.248503
+2.754712
+2.458455
+2.137466
+2.025376
+1.767732
+1.624228
+1.515075
+1.461962
+1.323031
+1.241263
+1.190269
+1.108090
+1.023823
+1.004031
+0.924596
+0.901928
+0.854114
+0.834654
+0.813565
+
+
+512x512 galat
+1
+Elapsed time is 68.676013
+2
+Elapsed time is 34.683230
+3
+Elapsed time is 23.617512
+4
+Elapsed time is 17.568494
+5
+Elapsed time is 13.950191
+6
+Elapsed time is 11.690079
+7
+Elapsed time is 10.072637
+8
+Elapsed time is 8.922390
+9
+Elapsed time is 8.157077
+10
+Elapsed time is 7.234177
+11
+Elapsed time is 6.587669
+12
+Elapsed time is 10.574733
+13
+Elapsed time is 16.532103
+14
+Elapsed time is 15.364909
+15
+Elapsed time is 14.486577
+16
+Elapsed time is 13.368768
+17
+Elapsed time is 13.060323
+18
+Elapsed time is 12.009337
+19
+Elapsed time is 11.245405
+20
+Elapsed time is 10.781612
+21
+Elapsed time is 10.380561
+22
+Elapsed time is 9.982662
+23
+Elapsed time is 9.574508
+24
+Elapsed time is 9.134491
+
+
+shader 512x512
+1
+Elapsed time is 78.916722
+trace: no process found
+2
+Elapsed time is 39.401865
+trace: no process found
+3
+Elapsed time is 26.563848
+trace: no process found
+4
+Elapsed time is 19.799133
+trace: no process found
+5
+Elapsed time is 16.147402
+trace: no process found
+6
+Elapsed time is 13.330799
+trace: no process found
+7
+Elapsed time is 11.477181
+trace: no process found
+8
+Elapsed time is 10.065301
+trace: no process found
+9
+Elapsed time is 9.026161
+trace: no process found
+10
+Elapsed time is 8.148010
+trace: no process found
+11
+Elapsed time is 7.468873
+trace: no process found
+12
+Elapsed time is 6.867505
+trace: no process found
+13
+Elapsed time is 6.358900
+trace: no process found
+14
+Elapsed time is 5.904872
+trace: no process found
+15
+Elapsed time is 5.579728
+trace: no process found
+16
+Elapsed time is 5.172076
+trace: no process found
+17
+Elapsed time is 4.964928
+trace: no process found
+18
+Elapsed time is 4.773919
+trace: no process found
+19
+Elapsed time is 4.407260
+trace: no process found
+20
+Elapsed time is 4.675921
+trace: no process found
+21
+Elapsed time is 8.022676
+trace: no process found
+22
+Elapsed time is 7.694784
+trace: no process found
+23
+Elapsed time is 7.527157
+trace: no process found
+24
+Elapsed time is 7.239641
+trace: no process found
+
+256x256 shader
+1
+Elapsed time is 19.660448
+trace: no process found
+2
+Elapsed time is 9.817079
+trace: no process found
+3
+Elapsed time is 6.597425
+trace: no process found
+4
+Elapsed time is 4.981552
+trace: no process found
+5
+Elapsed time is 4.022877
+trace: no process found
+6
+Elapsed time is 3.354955
+trace: no process found
+7
+Elapsed time is 2.917649
+trace: no process found
+8
+Elapsed time is 2.508786
+trace: no process found
+9
+Elapsed time is 2.297235
+trace: no process found
+10
+Elapsed time is 2.051855
+trace: no process found
+11
+Elapsed time is 1.879654
+trace: no process found
+12
+Elapsed time is 1.726983
+trace: no process found
+13
+Elapsed time is 1.601617
+trace: no process found
+14
+Elapsed time is 1.509245
+trace: no process found
+15
+Elapsed time is 1.430015
+trace: no process found
+16
+Elapsed time is 1.287819
+trace: no process found
+17
+Elapsed time is 1.272457
+trace: no process found
+18
+Elapsed time is 1.194635
+trace: no process found
+19
+Elapsed time is 1.148442
+trace: no process found
+20
+Elapsed time is 1.325859
+trace: no process found
+21
+Elapsed time is 2.092579
+trace: no process found
+22
+Elapsed time is 1.934050
+trace: no process found
+23
+Elapsed time is 1.919414
+trace: no process found
+24
+Elapsed time is 1.767633
+trace: no process found
+
+
+1024x1024 shader
+1
+Elapsed time is 312.332655
+trace: no process found
+2
+Elapsed time is 156.979708
+trace: no process found
+3
+Elapsed time is 105.184043
+trace: no process found
+4
+Elapsed time is 79.622597
+trace: no process found
+5
+Elapsed time is 63.310754
+trace: no process found
+6
+Elapsed time is 53.476333
+trace: no process found
+7
+Elapsed time is 46.020762
+trace: no process found
+8
+Elapsed time is 40.090765
+trace: no process found
+9
+Elapsed time is 35.929251
+trace: no process found
+10
+Elapsed time is 32.262971
+trace: no process found
+11
+Elapsed time is 29.608433
+trace: no process found
+12
+Elapsed time is 27.147112
+trace: no process found
+13
+Elapsed time is 25.387818
+trace: no process found
+14
+Elapsed time is 23.520939
+trace: no process found
+15
+Elapsed time is 22.038105
+trace: no process found
+16
+Elapsed time is 20.768694
+trace: no process found
+17
+Elapsed time is 19.457897
+trace: no process found
+18
+Elapsed time is 18.427374
+trace: no process found
+19
+Elapsed time is 17.578267
+trace: no process found
+20
+Elapsed time is 18.378126
+trace: no process found
+21
+Elapsed time is 31.437608
+trace: no process found
+22
+Elapsed time is 30.025498
+trace: no process found
+23
+Elapsed time is 29.164793
+trace: no process found
+24
+Elapsed time is 27.728951
+trace: no process found
+
+
+128x128 shader
+1
+Elapsed time is 4.931663
+trace: no process found
+2
+Elapsed time is 2.460628
+trace: no process found
+3
+Elapsed time is 1.672603
+trace: no process found
+4
+Elapsed time is 1.240964
+trace: no process found
+5
+Elapsed time is 1.012790
+trace: no process found
+6
+Elapsed time is 0.849690
+trace: no process found
+7
+Elapsed time is 0.739024
+trace: no process found
+8
+Elapsed time is 0.627871
+trace: no process found
+9
+Elapsed time is 0.585506
+trace: no process found
+10
+Elapsed time is 0.514334
+trace: no process found
+11
+Elapsed time is 0.477990
+trace: no process found
+12
+Elapsed time is 0.437941
+trace: no process found
+13
+Elapsed time is 0.400073
+trace: no process found
+14
+Elapsed time is 0.399939
+trace: no process found
+15
+Elapsed time is 0.364829
+trace: no process found
+16
+Elapsed time is 0.322673
+trace: no process found
+17
+Elapsed time is 0.323111
+trace: no process found
+18
+Elapsed time is 0.319871
+trace: no process found
+19
+Elapsed time is 0.289144
+trace: no process found
+20
+Elapsed time is 0.384734
+trace: no process found
+21
+Elapsed time is 0.542819
+trace: no process found
+22
+Elapsed time is 0.467526
+trace: no process found
+23
+Elapsed time is 0.481313
+trace: no process found
+24
+Elapsed time is 0.481605
+trace: no process found
+
+
